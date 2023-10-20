@@ -33,10 +33,10 @@ from viz.graph_viz import graph_visualize
 
 # LLM model
 llm = "meta-llama/Llama-2-7b-chat-hf"
-llm = "meta-llama/Llama-2-7b-hf"
-llm = "gpt2-large"
+# llm = "meta-llama/Llama-2-7b-hf"
+# llm = "gpt2-large"
 max_length = 2000
-max_length = 1024
+# max_length = 1024
 
 # Output parser will split the LLM result into a list of queries
 class LineList(BaseModel):
@@ -78,6 +78,9 @@ def construct_kg_chain():
     return kg_chain
 
 def construct_retrival_qa_chain(kg_output, llm_pipeline):
+    kg_output = kg_output.split("\n")[0]
+    graph_visualize(kg_output, ".")
+    
     output_parser = LineListOutputParser()
     kg_output = output_parser.parse(kg_output)
 
@@ -165,21 +168,19 @@ if __name__ == '__main__':
     get_prompt = get_prompt_2
     get_prompt = get_fewshot_prompt
     input_query, context = get_prompt()
-    kg_output = kg_chain.run(
-        {'input_query': input_query, 'context': context, 'input_text': temp_document}
-    )
-
-    kg_output = kg_output.split("\n")[0]
-    print(kg_output)
-    graph_visualize(kg_output, ".")
+    # kg_output = kg_chain.run(
+    #     {'input_query': input_query, 'context': context, 'input_text': temp_document}
+    # )
     # print(kg_output)
-    exit()
+    # graph_visualize(kg_output, ".")
+    # print(kg_output)
+    # exit()
     # retrival_fn = construct_retrival_fn()
-    retrival_qa_chain = construct_retrival_qa_chain(kg_output)
-    print(retrival_qa_chain.run("Please explain about the company related to Bill Gates."))
+    # retrival_qa_chain = construct_retrival_qa_chain(kg_output)
+    # print(retrival_qa_chain.run("Please explain about the company related to Bill Gates."))
 
     def kg_fn(document, question):
-        kg_output = kg_chain.run({'input_text': document})
+        kg_output = kg_chain.run({'input_query': input_query, 'context': context, 'input_text': temp_document})
         retrival_qa_chain = construct_retrival_qa_chain(kg_output, llm_pipeline)
         answer = retrival_qa_chain.run(question)
         print(type(kg_output))

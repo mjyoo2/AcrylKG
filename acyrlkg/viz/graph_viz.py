@@ -6,12 +6,6 @@ def parse_parentheses(s):
     return re.findall(r'\((.*?)\)', s)
 
 def graph_visualize(kg_output, output_path):
-    # triples example
-    # triples = [
-    #     ('I', 'Am', 'Student'),
-    #     ('I', 'Have', 'Phone'),
-    #     ('Student', 'Use', 'Phone')
-    # ]
     kg_output = parse_parentheses(kg_output)
     triples = []
     for triple in kg_output:
@@ -23,7 +17,13 @@ def graph_visualize(kg_output, output_path):
         elif len(temp) == 3:
             triples.append(temp)
 
-    print(triples)
+    # print(triples)
+    # triples example
+    # triples = [
+    #     ('I', 'Am', 'Student'),
+    #     ('I', 'Have', 'Phone'),
+    #     ('Student', 'Use', 'Phone')
+    # ]
 
     graph = Network()
     for s, p, o in triples:

@@ -3,6 +3,8 @@ import transformers
 import gradio as gr
 import chromadb
 import numpy as np
+from transformers import set_seed
+# set_seed(777)
 
 from langchain.chains import ConversationChain, SequentialChain, TransformChain, LLMChain
 from langchain.llms import HuggingFacePipeline
@@ -20,6 +22,21 @@ from pydantic import BaseModel, Field
 from langchain.prompts import PromptTemplate
 from langchain.output_parsers import PydanticOutputParser
 
+from prompt.kg_template import (
+    get_base_prompt,
+    get_prompt_1,
+    get_prompt_2,
+    get_fewshot_prompt
+)
+from viz.graph_viz import graph_visualize
+
+
+# LLM model
+llm = "meta-llama/Llama-2-7b-chat-hf"
+llm = "meta-llama/Llama-2-7b-hf"
+llm = "gpt2-large"
+max_length = 2000
+max_length = 1024
 
 # Output parser will split the LLM result into a list of queries
 class LineList(BaseModel):
@@ -36,20 +53,20 @@ class LineListOutputParser(PydanticOutputParser):
 
 def construct_kg_chain():
     kg_prompt = PromptTemplate(
-        input_variables=["input_text"],
-        template="Documents: {input_text} Question: Construct knowledge graph for the given text. Your answer should be a list of comma separated tuples of three strings as many as possible. Provide these tuples separated by newlines. Answer:",
+        input_variables=["context", "input_text"],
+        template="{context}\nDocument : {input_text}\nKnowledge Graph :",
     )
 
     # Load knowledge graph models
-    tokenizer=AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf")
+    tokenizer=AutoTokenizer.from_pretrained(llm)
     hf_llm_pipeline=transformers.pipeline(
         "text-generation",
-        model="meta-llama/Llama-2-7b-chat-hf",
+        model=llm,
         tokenizer=tokenizer,
         torch_dtype=torch.bfloat16,
         trust_remote_code=True,
         device_map="auto",
-        max_length=2000 ,
+        max_length=max_length ,
         do_sample=True,
         top_k=10,
         num_return_sequences=1,
@@ -78,15 +95,15 @@ def construct_retrival_qa_chain(kg_output, llm_pipeline):
     return retriever
 
 def construct_retrival_fn(kg_output):
-    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf")
+    tokenizer = AutoTokenizer.from_pretrained(llm)
     hf_llm_pipeline = transformers.pipeline(
         "text-generation",
-        model="meta-llama/Llama-2-7b-chat-hf",
+        model=llm,
         tokenizer=tokenizer,
         torch_dtype=torch.bfloat16,
         trust_remote_code=True,
         device_map="auto",
-        max_length=2000,
+        max_length=max_length,
         do_sample=True,
         top_k=10,
         num_return_sequences=1,
@@ -118,38 +135,48 @@ def construct_retrival_fn(kg_output):
 
 if __name__ == '__main__':
     kg_chain = construct_kg_chain()
-    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf")
+    tokenizer = AutoTokenizer.from_pretrained(llm)
+    if "gpt" in llm:
+        tokenizer.pad_token = tokenizer.eos_token
     hf_llm_pipeline = transformers.pipeline(
         "text-generation",
-        model="meta-llama/Llama-2-7b-chat-hf",
+        model=llm,
         tokenizer=tokenizer,
         torch_dtype=torch.bfloat16,
         trust_remote_code=True,
         device_map="auto",
-        max_length=2000,
+        max_length=max_length,
         do_sample=True,
         top_k=10,
         num_return_sequences=1,
-        eos_token_id=tokenizer.eos_token_id
+        eos_token_id=tokenizer.eos_token_id,
+        # load_in_8bit=True,
     )
 
     llm_pipeline = HuggingFacePipeline(pipeline=hf_llm_pipeline, model_kwargs={'temperature': 0.7})
     temp_document = ""
 
-    # kg_output = kg_chain.run(
-    #     {'input_text': """
-    # William Henry Gates III (born October 28, 1955) is an American billionaire, philanthropist, and investor best known for co-founding the software giant Microsoft, along with his childhood friend Paul Allen. During his career at Microsoft, Gates held the positions of chairman, chief executive officer (CEO), president, and chief software architect, while also being its largest individual shareholder until May 2014. He was a major entrepreneur of the microcomputer revolution of the 1970s and 1980s.
+    temp_document = "William Henry Gates III (born October 28, 1955) is an American billionaire, philanthropist, and investor best known for co-founding the software giant Microsoft, along with his childhood friend Paul Allen. During his career at Microsoft, Gates held the positions of chairman, chief executive officer (CEO), president, and chief software architect, while also being its largest individual shareholder until May 2014. He was a major entrepreneur of the microcomputer revolution of the 1970s and 1980s."
     # Gates was born and raised in Seattle. In 1975, he and Allen founded Microsoft in Albuquerque, New Mexico. It later became the world's largest personal computer software company. Gates led the company as its chairman and chief executive officer until stepping down as CEO in January 2000, succeeded by Steve Ballmer, but he remained chairman of the board of directors and became chief software architect. During the late 1990s, he was criticized for his business tactics, which were considered anti-competitive. This opinion has been upheld by numerous court rulings. In June 2008, Gates transitioned into a part-time role at Microsoft and full-time work at the Bill & Melinda Gates Foundation, the private charitable foundation he and his then-wife Melinda had established in 2000. He stepped down as chairman of the Microsoft board in February 2014 and assumed the role of technology adviser to support newly appointed CEO Satya Nadella. In March 2020, Gates left his board positions at Microsoft and Berkshire Hathaway to focus on his philanthropic efforts on climate change, global health and development, and education.
     # Since 1987, Gates has been included in the Forbes list of the world's billionaires. From 1995 to 2017, he held the Forbes title of the richest person in the world every year except in 2008 and from 2010 to 2013. In October 2017, he was surpassed by Amazon founder and CEO Jeff Bezos, who had an estimated net worth of US$90.6 billion compared to Gates's net worth of US$89.9 billion at the time. As of September 2023, Gates has an estimated net worth of US$129 billion, making him the fourth-richest person in the world according to Bloomberg Billionaires Index.
     # Later in his career and since leaving day-to-day operations at Microsoft in 2008, Gates has pursued other business and philanthropic endeavors. He is the founder and chairman of several companies, including BEN, Cascade Investment, TerraPower, bgC3, and Breakthrough Energy. He has donated sizable amounts of money to various charitable organizations and scientific research programs through the Bill & Melinda Gates Foundation, reported to be the world's largest private charity. Through the foundation, he led an early 21st century vaccination campaign that significantly contributed to the eradication of the wild poliovirus in Africa. In 2010, Gates and Warren Buffett founded The Giving Pledge, whereby they and other billionaires pledge to give at least half of their wealth to philanthropy.
-    # """}
-    # )
-    #
+    get_prompt = get_base_prompt
+    get_prompt = get_prompt_1
+    get_prompt = get_prompt_2
+    get_prompt = get_fewshot_prompt
+    input_query, context = get_prompt()
+    kg_output = kg_chain.run(
+        {'input_query': input_query, 'context': context, 'input_text': temp_document}
+    )
+
+    kg_output = kg_output.split("\n")[0]
+    print(kg_output)
+    graph_visualize(kg_output, ".")
     # print(kg_output)
-    #
-    # # retrival_fn = construct_retrival_fn()
-    # retrival_qa_chain = construct_retrival_qa_chain(kg_output)
-    # print(retrival_qa_chain.run("Please explain about the company related to Bill Gates."))
+    exit()
+    # retrival_fn = construct_retrival_fn()
+    retrival_qa_chain = construct_retrival_qa_chain(kg_output)
+    print(retrival_qa_chain.run("Please explain about the company related to Bill Gates."))
 
     def kg_fn(document, question):
         kg_output = kg_chain.run({'input_text': document})

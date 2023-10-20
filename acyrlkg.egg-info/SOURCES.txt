@@ -1,5 +1,0 @@
-setup.py
-acyrlkg.egg-info/PKG-INFO
-acyrlkg.egg-info/SOURCES.txt
-acyrlkg.egg-info/dependency_links.txt
-acyrlkg.egg-info/top_level.txt

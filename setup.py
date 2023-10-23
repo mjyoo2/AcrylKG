@@ -4,8 +4,8 @@ from setuptools import find_packages, setup
 __version__ = "0.0.1"
 
 setup(
-    name="acyrlkg",
-    packages=[package for package in find_packages() if package.startswith("acyrlkg")],
+    name="acrylkg",
+    packages=[package for package in find_packages() if package.startswith("acrylkg")],
     package_data={"acyrlkg": ["py.typed"]},
     install_requires=[],
     description=".",

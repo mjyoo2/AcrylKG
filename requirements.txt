@@ -8,3 +8,8 @@ bitsandbytes==0.41.1
 #accelerate==0.23.0
 datasets==2.14.5
 scipy==1.11.3
+pyvis==0.3.2
+chromadb
+
+optimum
+auto-gptq

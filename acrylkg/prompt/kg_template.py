@@ -30,3 +30,15 @@ def get_fewshot_prompt():
     context += "\n"
     context += "Document : Bionico is a dessert found in the Jalisco region of Mexico. The name of the leader in Jalisco is Jesus Casillas Romero. Another dessert is a cake.\nKnowledge Graph : (Mexico, country, Bionico), (Jalisco, region, Bionico), (Jesús_Casillas_Romero, leaderName, Jalisco), (Cake, dishVariation, Dessert), (Dessert, course, Bionico)\n"
     return input_query, context
+
+def get_fewsot_prompt_QA():
+    context = "Knowledge graph generation examples.\n"
+    context += "Context: (John, works-at, Google), (Google, is, tech-company), (John, is, engineer), (John, designed, bridge), (bridge, spans, river), (John, worked-with, team)\n"
+    context += "Question: Where did John work?\n"
+    context += "Answer: Based on (John, work-at, Google), (Google, is, tech-company), Join work at Google, which is tech-company.\n"
+    context += "\n"
+    context += "Context: (Steve Jobs, co-founded, Apple), (Apple, is headquartered in, Cupertino), (Apple, created, iPhone), (iPhone, was launched in, 2007)\n"
+    context += "Question: When was the iPhone released?\n"
+    context += "Answer: Based on (iPhone, was launched in, 2007), iPhone is released in 2007\n"
+    context += "\n"
+    return context

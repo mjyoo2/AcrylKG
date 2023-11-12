@@ -29,7 +29,8 @@ from prompt.kg_template import (
     get_base_prompt,
     get_prompt_1,
     get_prompt_2,
-    get_fewshot_prompt
+    get_fewshot_prompt,
+    get_fewsot_prompt_QA
 )
 from viz.graph_viz import graph_visualize
 
@@ -79,17 +80,12 @@ def construct_kg_chain():
     kg_chain = LLMChain(llm=llm_pipeline, prompt=kg_prompt, output_key="knowledge_graph",  verbose=True)
     return kg_chain
 
-def construct_retrival_qa_chain(kg_output, llm_pipeline):
+def construct_retrival_qa_chain(kg_output, llm_pipeline, prompt):
     kg_output = kg_output.split("\n")[0]
     kg_html, triples = graph_visualize(kg_output, ".")
     
     # output_parser = LineListOutputParser()
     # kg_output = output_parser.parse(kg_output)
-
-    prompt = PromptTemplate(
-        input_variables=["context", "question"],
-        template="System: Answer only based on context. Do not use common knowledge.\nContext: {context}.\nQuestion: {question}\nAnswer:",
-    )
 
     knowledge_graph_docs = [Document(page_content=' '.join(doc)) for doc in triples]
     DPR_model = HuggingFaceEmbeddings(model_name='sentence-transformers/facebook-dpr-question_encoder-single-nq-base')
@@ -149,7 +145,7 @@ if __name__ == '__main__':
     )
 
     wiki_page = wiki_en.page("Kim Ku")
-    docs = remove_non_ascii(wiki_page.text)[:5000].replace('\n', ' ')
+    docs = remove_non_ascii(wiki_page.text[:5000]).replace('\n', ' ')
     del wiki_en
 
     kg_chain = construct_kg_chain()
@@ -170,27 +166,23 @@ if __name__ == '__main__':
     )
 
     llm_pipeline = HuggingFacePipeline(pipeline=hf_llm_pipeline, model_kwargs={'temperature': 0.7})
-    # get_prompt = get_base_prompt
-    # get_prompt = get_prompt_1
-    # get_prompt = get_prompt_2
-    # get_prompt = get_fewshot_prompt
-    # input_query, context = get_prompt()
-    # context = "What Subject-Predicate-Object knowledge graphs are included in the following sentence? Please return the possible answers. Require the answer only in the form : [subject, predicate, object]\n"
-    # docs = """
-    #     Certainly. Here's an expanded fictional wiki entry for Steve Medison:
-    #     Steve Medison, often hailed as one of the brightest minds of the 21st century, has carved a niche for himself through his multifaceted achievements in diverse fields, from sustainable urban planning to music. Born in London on July 15, 1985, to a journalist mother and an architect father, he was exposed early on to a blend of art, science, and societal concerns. As a child, Medison demonstrated a keen interest in the intricate designs of urban structures and the environmental implications surrounding them.
-    #     Upon completing his education at the prestigious University of Cambridge, Medison relocated to New York City in 2007, where he embarked on a transformative journey in urban architecture. It was here in 2012 that he pioneered the 'Green Roof Movement', an initiative promoting the conversion of city rooftops into lush, green ecosystems. This movement not only combated urban heat islands but also promoted biodiversity in cityscapes. By 2015, this concept had already been embraced by over 30 major cities around the globe.
-    #     However, Medison's talents were not confined solely to architecture and urban planning. He is a classically trained pianist, a passion he inherited from his grandmother. In 2017, under the pseudonym 'Miles Echo', he released his debut jazz album, which quickly climbed the charts and earned him acclaim in the music world. He would go on to release two more albums, solidifying his status as a musical prodigy.
-    #     Beyond his professional endeavors, Medison has been an ardent advocate for education. In 2018, he established the 'Medison Foundation'. This non-profit organization offers scholarships and mentorship programs to underprivileged youths with aspirations in environmental and architectural sciences.
-    #     Steve Medison's marriage to environmental activist Clara Hughes in 2019 further spotlighted his commitment to environmental causes. Together, they've initiated community programs that foster sustainable living and environmental education.
-    #     Today, Medison's influence can be seen in the skylines of cities, in the notes of jazz clubs, and in the aspirations of young minds worldwide. His life serves as a testament to the idea that one can indeed blend passion, profession, and purpose seamlessly.
-    # """
     input_query, context = get_fewshot_prompt()
-    # loader = TextLoader("../data/kimgu/author_note.txt")
-    # docs = loader.load()
-    # print(docs)
     kg_output = kg_chain.run({'context': context, 'input_text': docs})
     print(kg_output)
+    prompt = PromptTemplate(
+        input_variables=["context", "question"],
+        template="System: Answer only based on context. Do not use common knowledge. \\nContext: {context}.\nQuestion: {question}\nAnswer:",
+    )
+
+    # cot_prompt = PromptTemplate(
+    #     input_variables=["context", "question"],
+    #     template="System: Answer only based on context. Do not use common knowledge.\n" + get_fewsot_prompt_QA() + "Context: {context}.\nQuestion: {question}\nAnswer:",
+    # )
+
+    retrival_qa_chain, kg_html = construct_retrival_qa_chain(kg_output, llm_pipeline, cot_prompt)
+    for i in range(5):
+        question = input()
+        answer = retrival_qa_chain.run(question)
 
     # def kg_fn(document, question):
     #     input_query, context = get_fewshot_prompt()

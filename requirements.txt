@@ -1,15 +1,18 @@
-#peft==0.5.0
-#transformers==4.34.0
-#huggingface-hub==0.17.3
-langchain==0.0.313
 # torch==2.1.0
 # torchvision==0.16.0
+peft==0.5.0
+transformers==4.34.0
+huggingface-hub==0.17.3
+langchain==0.0.313
 bitsandbytes==0.41.1
-#accelerate==0.23.0
+accelerate==0.23.0
 datasets==2.14.5
-scipy==1.11.3
+scipy==1.10.0
 pyvis==0.3.2
 chromadb
+gradio
 
 optimum
 auto-gptq
+wikipediaapi
+protobuf==3.20.0

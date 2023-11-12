@@ -33,12 +33,12 @@ def get_fewshot_prompt():
 
 def get_fewsot_prompt_QA():
     context = "Knowledge graph generation examples.\n"
-    context += "Context: (John, works-at, Google), (Google, is, tech-company), (John, is, engineer), (John, designed, bridge), (bridge, spans, river), (John, worked-with, team)\n"
-    context += "Question: Where did John work?\n"
-    context += "Answer: Based on (John, work-at, Google), (Google, is, tech-company), Join work at Google, which is tech-company.\n"
+    context += "Context : (John, works-at, Google)\n\n(Google, is, tech-company)\n\n(John, is, engineer)\n\n(John, designed, bridge)\n\n(bridge, spans, river)\n\n(John, worked-with, team)\n"
+    context += "Question : Where did John work?\n"
+    context += "Answer : Based on (John, work-at, Google), (Google, is, tech-company), Join work at Google, which is tech-company.\n"
     context += "\n"
-    context += "Context: (Steve Jobs, co-founded, Apple), (Apple, is headquartered in, Cupertino), (Apple, created, iPhone), (iPhone, was launched in, 2007)\n"
-    context += "Question: When was the iPhone released?\n"
-    context += "Answer: Based on (iPhone, was launched in, 2007), iPhone is released in 2007\n"
+    context += "Context : (Steve Jobs, co-founded, Apple)\n\n(Apple, is headquartered in, Cupertino)\n\n(Apple, created, iPhone)\n\n(iPhone, was launched in, 2007)\n"
+    context += "Question : When was the iPhone released?\n"
+    context += "Answer : Based on (iPhone, was launched in, 2007), iPhone is released in 2007\n"
     context += "\n"
     return context

@@ -57,7 +57,7 @@ class LineListOutputParser(PydanticOutputParser):
 def construct_kg_chain():
     kg_prompt = PromptTemplate(
         input_variables=["context", "input_text"],
-        template="{context}\nGenerate knowledge graph for the given document.\nDocument : {input_text}\nKnowledge Graph :",
+        template="Generate knowledge graph for the given document.\n{context}\nDocument : {input_text}\nKnowledge Graph : ",
     )
 
     # Load knowledge graph models
@@ -87,7 +87,7 @@ def construct_retrival_qa_chain(kg_output, llm_pipeline, prompt):
     # output_parser = LineListOutputParser()
     # kg_output = output_parser.parse(kg_output)
 
-    knowledge_graph_docs = [Document(page_content=' '.join(doc)) for doc in triples]
+    knowledge_graph_docs = [Document(page_content='(' + ', '.join(doc) + ')') for doc in triples]
     DPR_model = HuggingFaceEmbeddings(model_name='sentence-transformers/facebook-dpr-question_encoder-single-nq-base')
     vector_db = Chroma.from_documents(knowledge_graph_docs, DPR_model)
 
@@ -171,7 +171,7 @@ if __name__ == '__main__':
     print(kg_output)
     prompt = PromptTemplate(
         input_variables=["context", "question"],
-        template="System: Answer only based on context. Do not use common knowledge. \\nContext: {context}.\nQuestion: {question}\nAnswer:",
+        template="System: Answer only based on context. Do not use common knowledge. \nContext: {context}.\nQuestion : {question}\nAnswer :",
     )
 
     # cot_prompt = PromptTemplate(
@@ -183,6 +183,7 @@ if __name__ == '__main__':
     for i in range(5):
         question = input()
         answer = retrival_qa_chain.run(question)
+        print(answer)
 
     # def kg_fn(document, question):
     #     input_query, context = get_fewshot_prompt()

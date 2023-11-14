@@ -6,16 +6,19 @@ def parse_parentheses(s):
     return re.findall(r'\((.*?)\)', s)
 
 def graph_visualize(kg_output, output_path):
-    kg_output = parse_parentheses(kg_output)
-    triples = []
-    for triple in kg_output:
-        temp = triple.split(",", 2)
-        print(temp)
-        if len(temp) == 2:
-            temp.append(" ")
-            triples.append(temp)
-        elif len(temp) == 3:
-            triples.append(temp)
+    if type(kg_output) != list:
+        kg_output = parse_parentheses(kg_output)
+        triples = []
+        for triple in kg_output:
+            temp = triple.split(",", 2)
+            print(temp)
+            if len(temp) == 2:
+                temp.insert(1, "is")
+                triples.append(temp)
+            elif len(temp) == 3:
+                triples.append(temp)
+    else:
+        triples = kg_output
 
     # print(triples)
     # triples example

@@ -14,5 +14,5 @@ gradio
 
 optimum
 auto-gptq
-wikipediaapi
+wikipedia-api
 protobuf==3.20.0

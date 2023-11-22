@@ -29,9 +29,6 @@ from langchain.prompts import PromptTemplate
 from langchain.output_parsers import PydanticOutputParser
 from langchain.document_loaders import TextLoader
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-ENGINE = "gpt-3.5-turbo-instruct"  # "text-ada-001"
-
 import kimku_wiki
 from prompt.kg_template import (
     get_fewshot_prompt_detailed_ko,

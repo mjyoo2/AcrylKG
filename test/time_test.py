@@ -25,7 +25,6 @@ from langchain.chains import LLMChain
 from pydantic import BaseModel, Field
 from langchain.prompts import PromptTemplate
 from langchain.output_parsers import PydanticOutputParser
-
 # from prompt.kg_template import (
 #     get_base_prompt,
 #     get_prompt_1,

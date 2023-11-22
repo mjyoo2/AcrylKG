@@ -33,12 +33,15 @@ def get_fewshot_prompt():
 
 def get_fewshot_prompt_detailed():
     input_query = ""
-    context = "Please generate a knowledge graph slowly and in detail.\n"
+    context = "Please generate a knowledge graph using only the given documents. \n"
     context += "Document : Steven Paul Jobs (February 24, 1955 – October 5, 2011) was an American business magnate, inventor, and investor best known as the co-founder of Apple. Jobs was also chairman and majority shareholder of Pixar, and the founder of NeXT. He was a pioneer of the personal computer revolution of the 1970s and 1980s, along with his early business partner and fellow Apple co-founder Steve Wozniak.\n"
     context += "Knowledge Graph : (Steve Jobs, was born on, February 24 1955), (Steve Jobs, died on, October 5 2011), (Steve Jobs, nationality, American), (Steve Jobs, was a, business magnate), (Steve Jobs, was a, inventor), (Steve Jobs, was a, investor), (Steve Jobs, co-founded, Apple), (Apple, is a, technology company), (Steve Jobs, was chairman of, Pixar), (Steve Jobs, was majority shareholder of, Pixar), (Pixar, is a, film studio), (Steve Jobs, founded, NeXT), (NeXT, is a, technology company), (Steve Jobs, was a pioneer in, personal computer revolution), (Personal computer revolution, occurred in, 1970s and 1980s), (Steve Jobs, business partner with, Steve Wozniak). (Steve Wozniak, co-founded, Apple)\n"
     context += "\n"
+    context += "Please generate a knowledge graph using only the given documents. \n"
     context += "Document : Yi is regarded as one of the greatest naval commanders in history, with commentators praising his strategic vision, intelligence, innovations, and personality. Yi is celebrated as a national hero in Korea, with multiple landmarks, awards and towns named after him, as well as numerous films and documentaries centered on his exploits. His personal diaries, Nanjung Ilgi, covering a seven year period, are listed as part of UNESCO's Memory of the World.\n"
     context += "Knowledge Graph : (Yi Sun-sin, is regarded as, one of the greatest naval commanders in history), (Yi Sun-sin, praised for, strategic vision), (Yi Sun-sin, praised for, intelligence), (Yi Sun-sin, praised for, innovations), (Yi Sun-sin, praised for, personality), (Yi Sun-sin, celebrated as, national hero in Korea), (Multiple landmarks, named after, Yi Sun-sin), (Multiple awards, named after, Yi Sun-sin), (Towns, named after, Yi Sun-sin), (Numerous films, centered on, Yi Sun-sin's exploits), (Numerous documentaries, centered on, Yi Sun-sin's exploits), (Nanjung Ilgi, type of, personal diaries of Yi Sun-sin), (Nanjung Ilgi, covers, seven-year period), (Nanjung Ilgi, listed in, UNESCO's Memory of the World)\n"
+    context += "\n"
+    context += "Please generate a knowledge graph using only the given documents. \n"
     return input_query, context
 
 def get_fewshot_prompt_detailed_ko():
